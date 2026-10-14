@@ -1,0 +1,123 @@
+export const LOCALE_STORAGE_KEY = 'flex-hours.locale';
+export const SUPPORTED_LOCALES = ['en', 'uk'];
+
+const messages = {
+  en: {
+    appTitle: 'hourstracker',
+    appDescription: 'Track your Amazon Flex hours: a rolling seven-day window, reserved blocks, and your complete history.',
+    brandLabel: 'hourstracker — overview', brandTagline: 'FOR AMAZON FLEX',
+    language: 'Language', profileOpen: 'Open profile', mainMenu: 'Main menu',
+    overview: 'Overview', history: 'History', profile: 'Profile',
+    loading: 'Loading your hours…', retry: 'Try again', savedAccount: 'History saved to your account', savedDevice: 'Saved on this device',
+    hourShort: 'h', minuteShort: 'min', daysWithBlocks: 'days with blocks',
+    today: 'Today', noHours: 'no hours', noEntries: 'No entries', edit: 'Edit',
+    completed: 'Completed', reserved: 'Reserved', worked: 'Worked',
+    sevenDays: '7 days',
+    totalSevenDays: 'Total for seven days', hoursPeriod: 'Hours this period', periodToday: 'Today', periodPast: 'Past period', periodUpcoming: 'Upcoming',
+    availabilitySevenDays: 'Available hours for seven days', availableHours: 'Available hours', usedOfLimit: '{used} used of {limit}', fixedLimit: 'Fixed limit', overLimit: 'Over the limit by {duration}',
+    remaining: 'Remaining', usedHours: 'Worked and reserved hours', percentUsed: '{percent} used', usageValue: '{used} worked and reserved, {percent} of the limit; {remaining} remaining',
+    averageDay: 'Average per active day', yourSevenDays: 'Your 7 days', rollingPeriod: 'Rolling period',
+    previousDay: 'Move the period back one day', nextDay: 'Move the period forward one day',
+    stripLabel: 'Seven days. Swipe left or right to move the period.', swipeHint: '↔ Move the period one day at a time',
+    periodEnding: 'Period ending', endDateLabel: 'Last day of the seven-day period',
+    startFirstDay: 'Start with your first day.', startFirstDayHint: 'Tap a date to add worked hours or a reserved block.',
+    historyEverywhere: 'Your history, always with you', accountAccess: 'Create an account to use any device',
+    historyEyebrow: 'EVERY HOUR ACCOUNTED FOR', downloadCsv: 'Download history as CSV', month: 'Month', historyMonth: 'History month',
+    allTime: 'All time', selectedMonth: 'For the selected month', totalAllTime: 'Across all time', entries: 'entries',
+    emptyMonth: 'No entries this month yet', emptyHistory: 'Your history starts here',
+    historyHint: 'Worked hours and upcoming reservations appear here.', historyHintSecond: 'Return to any day to make a change.', goToHours: 'Go to hours',
+    profileEyebrow: 'YOUR PERSONAL SPACE', allSaved: 'All saved', accountHint: 'Sign in to this account on another device to keep tracking your hours.',
+    refreshHistory: 'Refresh history', deviceEntries: 'There are entries on this device',
+    importHint: 'Add them to your account. Days already saved in your account will stay unchanged.', importEntries: 'Import entries ({count})', signOut: 'Sign out',
+    newPassword: 'New password', recoverAccess: 'Reset your password', hoursEverywhere: 'Your hours. Anywhere.',
+    newPasswordHint: 'Choose a new password for your account.', resetHint: 'We’ll email you a link to reset your password.',
+    signupHint: 'Create an account to keep your history and open it on any device.', authMethod: 'Sign-in method', signup: 'Sign up', signin: 'Sign in',
+    cloudUnavailable: 'Cloud accounts are not connected yet. You can already track hours and keep history on this device.',
+    email: 'Email address', password: 'Password', passwordMinimum: 'At least 8 characters', passwordPlaceholder: 'Your password',
+    savePassword: 'Save password', sendLink: 'Send reset link', createAccount: 'Create account', backToSignin: 'Back to sign in', forgotPassword: 'Forgot password?',
+    guestStart: 'You can start without an account.', guestHint: 'Your entries are saved in this browser.',
+    footer: 'Less counting. More clarity.', footerNote: 'An independent tracker for Flex drivers',
+    loadFailed: 'Could not load your hours.', signedOut: 'You have signed out', importedDays: 'Days imported: {count}',
+    waitForHistory: 'Wait for your history to load', workday: 'YOUR DAY', close: 'Close',
+    dayDuration: 'Total duration for this day', hours: 'hours', minutes: 'minutes', quickDuration: 'Quick duration selection',
+    totalMinutes: 'Total minutes', presetHint: 'Select blocks to add minutes. Tap again to remove. You can also type a total; typing clears the selection.',
+    blockStatus: 'Block status', futureStatusHint: 'Future blocks are saved as reserved. Mark them completed after you work them.',
+    statusHint: 'Reserved hours stay reserved until you mark them completed.',
+    aggregateHint: 'Enter the combined duration of all blocks for this day. One status applies to the day’s total.',
+    note: 'Note', optional: 'optional', notePlaceholder: 'For example, a morning block',
+    saveHours: 'Save', deleteDay: 'Delete this day’s entry', confirmDelete: 'Tap again to delete',
+    durationInvalid: 'Enter a whole number from 0 to 1,440 minutes for one day.', entryDeleted: 'Entry deleted', entrySaved: '{duration} · saved',
+    saveFailed: 'Could not save. Please try again.', passwordUpdated: 'Password updated',
+    resetSent: 'If an account exists, a reset link will arrive in your inbox.',
+    signupSent: 'Check your email: if this address is available for registration, you’ll receive a confirmation link.',
+    signinFailed: 'Could not sign in. Please try again.',
+    csvDate: 'Date', csvHours: 'Hours', csvMinutes: 'Minutes', csvTotalMinutes: 'Total minutes', csvStatus: 'Status', csvNote: 'Note',
+  },
+  uk: {
+    appTitle: 'hourstracker',
+    appDescription: 'Облік годин Amazon Flex: рухомий семиденний період, заброньовані блоки та повна історія.',
+    brandLabel: 'hourstracker — огляд', brandTagline: 'ДЛЯ AMAZON FLEX',
+    language: 'Мова', profileOpen: 'Відкрити профіль', mainMenu: 'Головне меню',
+    overview: 'Огляд', history: 'Історія', profile: 'Профіль',
+    loading: 'Завантажуємо години…', retry: 'Спробувати знову', savedAccount: 'Історію збережено в акаунті', savedDevice: 'Збережено на цьому пристрої',
+    hourShort: 'год', minuteShort: 'хв', daysWithBlocks: 'днів із блоками',
+    today: 'Сьогодні', noHours: 'немає годин', noEntries: 'Немає записів', edit: 'Редагувати',
+    completed: 'Відпрацьовано', reserved: 'Заброньовано', worked: 'Відпрацьовано',
+    sevenDays: '7 днів',
+    totalSevenDays: 'Усього за сім днів', hoursPeriod: 'Години за період', periodToday: 'На сьогодні', periodPast: 'Минулий період', periodUpcoming: 'Майбутній період',
+    availabilitySevenDays: 'Доступні години за сім днів', availableHours: 'Доступні години', usedOfLimit: 'Використано {used} із {limit}', fixedLimit: 'Фіксований ліміт', overLimit: 'Ліміт перевищено на {duration}',
+    remaining: 'Залишилося', usedHours: 'Відпрацьовані та заброньовані години', percentUsed: '{percent} використано', usageValue: 'Відпрацьовано та заброньовано {used}, {percent} від ліміту; залишилося {remaining}',
+    averageDay: 'У середньому за активний день', yourSevenDays: 'Ваші 7 днів', rollingPeriod: 'Рухомий період',
+    previousDay: 'Зсунути період на день назад', nextDay: 'Зсунути період на день уперед',
+    stripLabel: 'Сім днів. Проведіть ліворуч або праворуч, щоб зсунути період.', swipeHint: '↔ Зсувайте період на один день',
+    periodEnding: 'Період до', endDateLabel: 'Останній день семиденного періоду',
+    startFirstDay: 'Почніть із першого дня.', startFirstDayHint: 'Натисніть дату, щоб додати відпрацьовані години або бронювання.',
+    historyEverywhere: 'Ваша історія завжди з вами', accountAccess: 'Акаунт для доступу з різних пристроїв',
+    historyEyebrow: 'КОЖНУ ГОДИНУ ВРАХОВАНО', downloadCsv: 'Завантажити історію у CSV', month: 'Місяць', historyMonth: 'Місяць історії',
+    allTime: 'Увесь час', selectedMonth: 'За вибраний місяць', totalAllTime: 'За весь час', entries: 'записів',
+    emptyMonth: 'У цьому місяці ще немає записів', emptyHistory: 'Тут починається ваша історія',
+    historyHint: 'Тут з’являться відпрацьовані години та майбутні бронювання.', historyHintSecond: 'До будь-якого дня можна повернутися й внести зміни.', goToHours: 'Перейти до годин',
+    profileEyebrow: 'ВАШ ОСОБИСТИЙ ПРОСТІР', allSaved: 'Усе збережено', accountHint: 'Увійдіть у цей акаунт на іншому пристрої, щоб продовжити облік годин.',
+    refreshHistory: 'Оновити історію', deviceEntries: 'На пристрої є записи',
+    importHint: 'Додайте їх до акаунта. Дні, уже збережені в акаунті, залишаться без змін.', importEntries: 'Перенести записи ({count})', signOut: 'Вийти з акаунта',
+    newPassword: 'Новий пароль', recoverAccess: 'Відновити пароль', hoursEverywhere: 'Ваші години. Будь-де.',
+    newPasswordHint: 'Створіть новий пароль для свого акаунта.', resetHint: 'Надішлемо посилання для зміни пароля на вашу пошту.',
+    signupHint: 'Створіть акаунт, щоб зберігати історію та відкривати її на будь-якому пристрої.', authMethod: 'Спосіб входу', signup: 'Реєстрація', signin: 'Вхід',
+    cloudUnavailable: 'Хмарні акаунти ще не підключено. Облік годин та історія вже доступні на цьому пристрої.',
+    email: 'Електронна пошта', password: 'Пароль', passwordMinimum: 'Щонайменше 8 символів', passwordPlaceholder: 'Ваш пароль',
+    savePassword: 'Зберегти пароль', sendLink: 'Отримати посилання', createAccount: 'Створити акаунт', backToSignin: 'Повернутися до входу', forgotPassword: 'Забули пароль?',
+    guestStart: 'Можна почати без реєстрації.', guestHint: 'Ваші записи зберігаються в цьому браузері.',
+    footer: 'Менше підрахунків. Більше ясності.', footerNote: 'Незалежний трекер для водіїв Flex',
+    loadFailed: 'Не вдалося завантажити години.', signedOut: 'Ви вийшли з акаунта', importedDays: 'Перенесено днів: {count}',
+    waitForHistory: 'Дочекайтеся завантаження історії', workday: 'ВАШ ДЕНЬ', close: 'Закрити',
+    dayDuration: 'Загальна тривалість за день', hours: 'годин', minutes: 'хвилин', quickDuration: 'Швидкий вибір тривалості',
+    totalMinutes: 'Усього хвилин', presetHint: 'Виберіть блоки, щоб додати хвилини. Натисніть знову, щоб відняти. Можна ввести суму вручну — це скине вибір кнопок.',
+    blockStatus: 'Статус блоків', futureStatusHint: 'Майбутні блоки зберігаються як заброньовані. Позначте їх відпрацьованими після роботи.',
+    statusHint: 'Заброньовані години залишаються такими, доки ви не позначите їх відпрацьованими.',
+    aggregateHint: 'Укажіть сумарну тривалість усіх блоків за день. Один статус застосовується до всього дня.',
+    note: 'Нотатка', optional: 'необов’язково', notePlaceholder: 'Наприклад, ранковий блок',
+    saveHours: 'Зберегти', deleteDay: 'Видалити запис за день', confirmDelete: 'Натисніть ще раз, щоб видалити',
+    durationInvalid: 'Укажіть ціле число від 0 до 1440 хвилин за день.', entryDeleted: 'Запис видалено', entrySaved: '{duration} · збережено',
+    saveFailed: 'Не вдалося зберегти. Спробуйте ще раз.', passwordUpdated: 'Пароль оновлено',
+    resetSent: 'Якщо акаунт існує, лист із посиланням надійде на вашу пошту.',
+    signupSent: 'Перевірте пошту: якщо адреса доступна для реєстрації, ви отримаєте посилання для підтвердження.',
+    signinFailed: 'Не вдалося ввійти. Спробуйте ще раз.',
+    csvDate: 'Дата', csvHours: 'Години', csvMinutes: 'Хвилини', csvTotalMinutes: 'Усього хвилин', csvStatus: 'Статус', csvNote: 'Нотатка',
+  },
+};
+
+let locale = 'en';
+
+export function setLocale(value) {
+  locale = SUPPORTED_LOCALES.includes(value) ? value : 'en';
+  return locale;
+}
+
+export function getLocale() { return locale; }
+export function intlLocale() { return locale === 'uk' ? 'uk-UA' : 'en-US'; }
+
+export function t(key, params = {}) {
+  const message = messages[locale][key] ?? messages.en[key];
+  if (message === undefined) throw new Error(`Unknown translation key: ${key}`);
+  return message.replace(/\{(\w+)\}/g, (_, name) => String(params[name] ?? `{${name}}`));
+}
