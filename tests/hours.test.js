@@ -8,7 +8,7 @@ test('repeated presses keep adding the same block', () => {
     let total = 0;
     for (let count = 1; count <= 3; count++) {
       total = addMinutePreset(total, preset);
-      assert.equal(total, preset * count);
+      assert.equal(total, Math.min(480, preset * count));
     }
   }
 });
@@ -16,15 +16,15 @@ test('repeated presses keep adding the same block', () => {
 test('mixed blocks add to existing saved or manually entered totals', () => {
   let total = 37;
   for (const preset of [90, 120, 90, 240, 480]) total = addMinutePreset(total, preset);
-  assert.equal(total, 1057);
+  assert.equal(total, 480);
   assert.equal(addMinutePreset(210, 90), 300);
 });
 
-test('one-day bounds reject overflow and invalid totals or blocks', () => {
-  assert.equal(addMinutePreset(1350, 90), 1440);
-  assert.throws(() => addMinutePreset(1350, 120), RangeError);
-  assert.throws(() => addMinutePreset(1440, 90), RangeError);
-  for (const invalid of [-1, 0.5, 1441, NaN, Infinity, '90', null, undefined]) {
+test('one-day total stops at 480 without errors or wraparound', () => {
+  assert.equal(addMinutePreset(450, 90), 480);
+  assert.equal(addMinutePreset(480, 120), 480);
+  assert.equal(addMinutePreset(1440, 90), 480);
+  for (const invalid of [-1, 0.5, NaN, Infinity, '90', null, undefined]) {
     assert.throws(() => addMinutePreset(invalid, 90), RangeError);
   }
   for (const preset of [0, 30, 91, -90, '90', NaN, null, undefined]) {

@@ -2,7 +2,7 @@ import './style.css';
 import { localDateKey, parseDate, shiftDate, rollingDates, sumMinutes, formatDuration, setDateLocale } from './dates.js';
 import { cloudConfigured, getSession, onAuthChange, signUp, signIn, signOut, requestPasswordReset, updatePassword, loadEntries, saveEntry, deleteEntry, loadGuestEntries, importGuestEntries, setStorageLocale } from './storage.js';
 import { LOCALE_STORAGE_KEY, setLocale, getLocale, intlLocale, t } from './i18n.js';
-import { MINUTE_PRESETS, addMinutePreset, getAvailability } from './hours.js';
+import { DAILY_LIMIT_MINUTES, MINUTE_PRESETS, addMinutePreset, getAvailability } from './hours.js';
 
 const app = document.querySelector('#app');
 const dialog = document.querySelector('#editor');
@@ -52,10 +52,9 @@ function toast(message) {
 }
 function availabilityGauge(minutes, usedMinutes, ready) {
   const fraction = usedMinutes / WEEKLY_LIMIT_MINUTES;
-  const percent = new Intl.NumberFormat(intlLocale(), { style: 'percent', maximumFractionDigits: 2 }).format(fraction);
   const hours = Math.floor(minutes / 60), rest = minutes % 60;
   const accessibleState = ready
-    ? `role="meter" aria-label="${t('usedHours')}" aria-valuemin="0" aria-valuemax="${WEEKLY_LIMIT_MINUTES}" aria-valuenow="${Math.min(usedMinutes, WEEKLY_LIMIT_MINUTES)}" aria-valuetext="${escape(t('usageValue', { used: formatDuration(usedMinutes), remaining: formatDuration(minutes), percent }))}"`
+    ? `role="meter" aria-label="${t('usedHours')}" aria-valuemin="0" aria-valuemax="${WEEKLY_LIMIT_MINUTES}" aria-valuenow="${Math.min(usedMinutes, WEEKLY_LIMIT_MINUTES)}" aria-valuetext="${escape(t('usageValue', { used: formatDuration(usedMinutes), remaining: formatDuration(minutes) }))}"`
     : `role="status" aria-label="${t(state.error ? 'loadFailed' : 'loading')}"`;
   return `<div class="availability-gauge" ${accessibleState}>
     <svg class="availability-ring" viewBox="0 0 240 240" aria-hidden="true">
@@ -64,9 +63,7 @@ function availabilityGauge(minutes, usedMinutes, ready) {
     </svg>
     <div class="availability-center">
       <span class="availability-label">${t('remaining')}</span>
-      <div class="availability-duration"><span class="availability-hours">${ready ? hours : '—'}</span>${ready ? `<span class="availability-unit">${t('hourShort')}</span>` : ''}</div>
-      ${ready && rest ? `<span class="availability-minutes">${rest} ${t('minuteShort')}</span>` : ''}
-      <span class="availability-percent">${ready ? t('percentUsed', { percent }) : '—'}</span>
+      <div class="availability-duration ${ready && hours && rest ? 'has-both-units' : ''}">${!ready ? '<span class="availability-hours">—</span>' : `${hours ? `<span class="availability-hours">${hours}</span><span class="availability-unit">${t('hourShort')}</span>` : ''}${rest || !hours ? `<span class="availability-minutes">${rest}</span><span class="availability-unit">${t('minuteShort')}</span>` : ''}`}</div>
     </div>
   </div>`;
 }
@@ -103,13 +100,13 @@ function overview() {
   return `<section class="summary-card ${ready && overLimitMinutes ? 'over-limit' : ''}" aria-label="${t('availabilitySevenDays')}">
       <div class="availability-display">${availabilityGauge(availableMinutes, total, ready)}</div>
     </section>
-    <section class="window-section" aria-labelledby="window-title"><div class="section-heading"><div><h2 id="window-title">${t('yourSevenDays')}</h2><p>${t('rollingPeriod')} · ${prettyDate(state.end, { year: 'numeric' })}</p></div><div class="window-controls"><button class="icon-button" data-shift="-1" aria-label="${t('previousDay')}" ${state.end <= MIN_END ? 'disabled' : ''}>${icon('arrow', 'rotate')}</button><button class="icon-button" data-shift="1" aria-label="${t('nextDay')}" ${state.end >= MAX_END ? 'disabled' : ''}>${icon('arrow')}</button></div></div>
+    <section class="window-section" aria-labelledby="window-title"><div class="section-heading"><div><h2 id="window-title">${t('yourSevenDays')}</h2><p>${t('rollingPeriod')} · ${prettyDate(state.end, { year: 'numeric' })}</p></div></div>
       <div class="days-strip" id="days-strip" aria-label="${t('stripLabel')}">${dates.map(key => {
         const entry = state.entries[key], mins = entry?.minutes || 0, reserved = entryStatus(entry) === 'reserved';
         const label = `${prettyDate(key, { dateStyle: 'full' })}, ${formatDuration(mins)}${entry ? `, ${t(entryStatus(entry))}` : ''}. ${t('edit')}`;
         return `<button class="day-column ${key === today ? 'is-today' : ''} ${mins ? 'has-hours' : ''} ${reserved ? 'reserved' : ''}" data-edit="${key}" aria-label="${escape(label)}" ${state.loading || state.error ? 'disabled' : ''}><span class="column-weekday">${prettyDate(key, { weekday: 'short' })}</span><span class="column-date">${parseDate(key).getDate()}</span><span class="bar-track"><span class="bar-fill" style="height:${mins ? Math.max(8, mins / max * 100) : 5}%"></span></span><span class="column-hours">${mins ? `${Number((mins / 60).toFixed(2)).toLocaleString(intlLocale())} ${t('hourShort')}` : '—'}</span></button>`;
       }).join('')}</div>
-      <label class="jump-date">${icon('calendar')}<span>${t('periodEnding')}</span><input aria-label="${t('endDateLabel')}" id="end-date" type="date" value="${state.end}" max="${MAX_END}" min="${MIN_END}" /></label>
+      <div class="jump-date"><button class="icon-button" data-shift="-1" aria-label="${t('previousDay')}" ${state.end <= MIN_END ? 'disabled' : ''}>${icon('arrow', 'rotate')}</button><label class="period-date"><span>${t('periodEnding')}</span><input aria-label="${t('endDateLabel')}" id="end-date" type="date" value="${state.end}" max="${MAX_END}" min="${MIN_END}" /></label><button class="icon-button" data-shift="1" aria-label="${t('nextDay')}" ${state.end >= MAX_END ? 'disabled' : ''}>${icon('arrow')}</button></div>
     </section>
     ${!Object.keys(state.entries).length && !state.loading ? `<p class="empty-hint">${t('startFirstDay')}<br/>${t('startFirstDayHint')}</p>` : ''}
     ${status()}${!state.user ? `<button class="account-nudge" data-tab="profile"><span class="nudge-icon">${icon('cloud')}</span><span><strong>${t('historyEverywhere')}</strong><small>${t('accountAccess')}</small></span>${icon('arrow')}</button>` : ''}`;
@@ -217,18 +214,20 @@ function openEditor(key) {
   editorGeneration++;
   const future = key > localDateKey();
   const entry = state.entries[key] || { minutes: 0, note: '', status: future ? 'reserved' : 'completed' };
+  const initialMinutes = Math.min(entry.minutes, DAILY_LIMIT_MINUTES);
   editorBusy = false;
   dialog.innerHTML = `<div class="sheet-handle"></div><div class="editor-header"><div><p class="eyebrow">${t('workday')}</p><h2 id="editor-title">${prettyDate(key, { day: 'numeric', month: 'long' })}</h2><p>${prettyDate(key, { weekday: 'long', year: 'numeric' })}</p></div><button class="icon-button" id="close-editor" aria-label="${t('close')}">${icon('close')}</button></div>
-    <form id="entry-form" novalidate><label class="minutes-label" for="minutes">${t('totalMinutes')}</label><div class="minutes-input"><input id="minutes" name="minutes" type="number" inputmode="numeric" min="0" max="1440" step="1" value="${entry.minutes}" required aria-describedby="duration-preview preset-hint" /><span aria-hidden="true">${t('minuteShort')}</span></div><p class="duration-preview" id="duration-preview" aria-live="polite">${formatDuration(entry.minutes)}</p>
+    <form id="entry-form" novalidate><label class="minutes-label" for="minutes">${t('totalMinutes')}</label><div class="minutes-input"><input id="minutes" name="minutes" type="number" inputmode="numeric" min="0" max="${DAILY_LIMIT_MINUTES}" step="1" value="${initialMinutes}" required aria-describedby="duration-preview preset-hint" /><span aria-hidden="true">${t('minuteShort')}</span></div><p class="duration-preview" id="duration-preview" aria-live="polite">${formatDuration(initialMinutes)}</p>
     <div class="minute-presets" role="group" aria-label="${t('quickDuration')}">${MINUTE_PRESETS.map(value => `<button type="button" class="minute-preset" data-duration="${value}">+${value}<small>${t('minuteShort')}</small></button>`).join('')}</div><p class="preset-hint" id="preset-hint">${t('presetHint')}</p>
     <p id="entry-error" class="form-message" role="alert" hidden></p><button class="primary-button" type="submit">${icon('check')}${t('saveHours')}</button>${state.entries[key] ? `<button class="delete-button" id="delete-entry" type="button">${t('deleteDay')}</button>` : ''}</form>`;
   dialog.querySelector('#close-editor').addEventListener('click', () => { if (!editorBusy) dialog.close(); });
   const minutesInput = dialog.querySelector('#minutes');
   const syncPreview = () => {
     const minutes = minutesInput.value === '' ? 0 : minutesInput.valueAsNumber;
-    dialog.querySelector('#duration-preview').textContent = Number.isInteger(minutes) && minutes >= 0 && minutes <= 1440 ? formatDuration(minutes) : '—';
+    dialog.querySelector('#duration-preview').textContent = Number.isInteger(minutes) && minutes >= 0 && minutes <= DAILY_LIMIT_MINUTES ? formatDuration(minutes) : '—';
   };
   minutesInput.addEventListener('input', () => {
+    if (minutesInput.valueAsNumber > DAILY_LIMIT_MINUTES) minutesInput.value = DAILY_LIMIT_MINUTES;
     dialog.querySelector('#entry-error').hidden = true;
     syncPreview();
   });
@@ -257,9 +256,9 @@ async function commitEntry(key, remove = false) {
   if (editorBusy) return;
   const form = dialog.querySelector('#entry-form'), errorEl = dialog.querySelector('#entry-error');
   errorEl.hidden = true;
-  const minutes = Number(form.elements.minutes.value);
+  const minutes = Math.min(DAILY_LIMIT_MINUTES, Number(form.elements.minutes.value));
   const entry = { minutes, note: state.entries[key]?.note ?? '', status: key > localDateKey() ? 'reserved' : 'completed' };
-  if (!remove && (!form.elements.minutes.value.trim() || !Number.isInteger(minutes) || minutes > 1440 || minutes < 0)) {
+  if (!remove && (!form.elements.minutes.value.trim() || !Number.isInteger(minutes) || minutes > DAILY_LIMIT_MINUTES || minutes < 0)) {
     errorEl.textContent = t('durationInvalid'); errorEl.hidden = false; return;
   }
   editorBusy = true;

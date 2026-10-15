@@ -239,23 +239,31 @@ h1>span {
   letter-spacing:-3px;
   font-variant-numeric:tabular-nums
 }
+.availability-minutes {
+  font-size:44px;
+  font-weight:600;
+  letter-spacing:-2px;
+  font-variant-numeric:tabular-nums;
+  color:#8d6c54
+}
 .availability-unit {
   font-size:20px;
   font-weight:600;
   color:#9a7559
 }
-.availability-minutes {
-  margin-top:3px;
-  font-size:16px;
-  font-weight:600;
-  line-height:1.2;
-  color:#8d6c54
+.availability-duration.has-both-units {
+  gap:5px;
 }
-.availability-percent {
-  margin-top:9px;
-  font-size:10px;
-  line-height:1.35;
-  color:#b26631
+.has-both-units .availability-hours {
+  font-size:40px;
+  letter-spacing:-2px;
+}
+.has-both-units .availability-minutes {
+  font-size:30px;
+  letter-spacing:-1px;
+}
+.has-both-units .availability-unit {
+  font-size:16px;
 }
 .over-limit .availability-ring-fill {
   stroke:#c96d56
@@ -264,9 +272,7 @@ h1>span {
   stroke:#efd2c9
 }
 .over-limit .availability-duration,
-.over-limit .availability-unit,
-.over-limit .availability-minutes,
-.over-limit .availability-percent {
+.over-limit .availability-unit {
   color:#b05b47
 }
 .summary-footer {
@@ -1323,6 +1329,9 @@ dialog::backdrop {
 }
 
 /* The overview keeps its gauge and date controls together on phone screens. */
+.overview-shell {
+  padding-top:calc(24px + env(safe-area-inset-top, 0px))
+}
 .overview-shell .topbar {
   height:64px
 }
@@ -1338,7 +1347,7 @@ dialog::backdrop {
   margin:10px 0 12px
 }
 .overview-shell .availability-gauge {
-  width:min(250px,100%)
+  width:min(280px,100%)
 }
 .overview-shell .window-section {
   display:grid;
@@ -1377,6 +1386,9 @@ dialog::backdrop {
   margin-top:18px
 }
 @media(max-height:700px) {
+  .overview-shell {
+    padding-top:calc(16px + env(safe-area-inset-top, 0px))
+  }
   .overview-shell .topbar {
     height:48px
   }
@@ -1384,7 +1396,7 @@ dialog::backdrop {
     margin:4px 0 6px
   }
   .overview-shell .availability-gauge {
-    width:min(240px,100%)
+    width:min(260px,100%)
   }
   .overview-shell .window-section {
     margin-top:4px
@@ -1480,4 +1492,32 @@ dialog::backdrop {
   .header-actions {
     gap:5px
   }
+}
+
+/* Keep day navigation beside the date, within comfortable thumb reach. */
+.overview-shell .jump-date {
+  display:grid;
+  grid-template-columns:44px minmax(0,1fr) 44px;
+  align-items:center;
+  gap:8px;
+  padding:6px;
+}
+.period-date {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-width:0;
+}
+.overview-shell .jump-date .icon-button {
+  width:44px;
+  height:44px;
+}
+.overview-shell .jump-date input {
+  width:135px;
+  max-width:100%;
+  min-width:0;
+  font-size:12px;
+  text-align:center;
 }

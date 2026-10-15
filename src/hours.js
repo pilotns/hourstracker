@@ -1,3 +1,4 @@
+export const DAILY_LIMIT_MINUTES = 480;
 export const MINUTE_PRESETS = Object.freeze([90, 120, 240, 480]);
 
 function requireMinutes(value, maximum = Number.MAX_SAFE_INTEGER) {
@@ -9,9 +10,9 @@ function requireMinutes(value, maximum = Number.MAX_SAFE_INTEGER) {
 
 /** Each press adds a block to the current total, including repeated presses. */
 export function addMinutePreset(totalMinutes, preset) {
-  requireMinutes(totalMinutes, 1440);
+  requireMinutes(totalMinutes);
   if (!MINUTE_PRESETS.includes(preset)) throw new RangeError('Unknown minute preset');
-  return requireMinutes(totalMinutes + preset, 1440);
+  return Math.min(DAILY_LIMIT_MINUTES, totalMinutes + preset);
 }
 
 /** Compare all counted minutes in the selected period with a user-set limit. */
