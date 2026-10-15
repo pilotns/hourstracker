@@ -2,11 +2,11 @@ import './style.css';
 import { localDateKey, parseDate, shiftDate, rollingDates, sumMinutes, formatDuration, setDateLocale } from './dates.js';
 import { cloudConfigured, getSession, onAuthChange, signUp, signIn, signOut, requestPasswordReset, updatePassword, loadEntries, saveEntry, deleteEntry, loadGuestEntries, importGuestEntries, setStorageLocale } from './storage.js';
 import { LOCALE_STORAGE_KEY, setLocale, getLocale, intlLocale, t } from './i18n.js';
-import { MINUTE_PRESETS, createMinuteSelection, toggleMinuteSelection, getAvailability } from './hours.js';
+import { MINUTE_PRESETS, addMinutePreset, getAvailability } from './hours.js';
 
 const app = document.querySelector('#app');
 const dialog = document.querySelector('#editor');
-const state = { tab: 'overview', end: localDateKey(), entries: {}, user: null, loading: true, error: '', authMode: 'signup', authBusy: false, authMessage: '', authMessageKey: '', authError: false, month: '', recovery: false };
+const state = { tab: 'overview', end: shiftDate(localDateKey(), 1), entries: {}, user: null, loading: true, error: '', authMode: 'signup', authBusy: false, authMessage: '', authMessageKey: '', authError: false, month: '', recovery: false };
 let loadId = 0;
 let authGeneration = 0;
 let editorGeneration = 0;
@@ -217,33 +217,31 @@ function openEditor(key) {
   editorGeneration++;
   const future = key > localDateKey();
   const entry = state.entries[key] || { minutes: 0, note: '', status: future ? 'reserved' : 'completed' };
-  let selection = createMinuteSelection(entry.minutes);
   editorBusy = false;
   dialog.innerHTML = `<div class="sheet-handle"></div><div class="editor-header"><div><p class="eyebrow">${t('workday')}</p><h2 id="editor-title">${prettyDate(key, { day: 'numeric', month: 'long' })}</h2><p>${prettyDate(key, { weekday: 'long', year: 'numeric' })}</p></div><button class="icon-button" id="close-editor" aria-label="${t('close')}">${icon('close')}</button></div>
     <form id="entry-form" novalidate><label class="minutes-label" for="minutes">${t('totalMinutes')}</label><div class="minutes-input"><input id="minutes" name="minutes" type="number" inputmode="numeric" min="0" max="1440" step="1" value="${entry.minutes}" required aria-describedby="duration-preview preset-hint" /><span aria-hidden="true">${t('minuteShort')}</span></div><p class="duration-preview" id="duration-preview" aria-live="polite">${formatDuration(entry.minutes)}</p>
-    <div class="minute-presets" role="group" aria-label="${t('quickDuration')}">${MINUTE_PRESETS.map(value => `<label class="minute-preset"><input type="checkbox" data-duration="${value}" aria-label="${value} ${t('minuteShort')}" ${selection.selected.includes(value) ? 'checked' : ''} /><span><span class="preset-marker">${icon('check')}</span>${value}<small>${t('minuteShort')}</small></span></label>`).join('')}</div><p class="preset-hint" id="preset-hint">${t('presetHint')}</p>
+    <div class="minute-presets" role="group" aria-label="${t('quickDuration')}">${MINUTE_PRESETS.map(value => `<button type="button" class="minute-preset" data-duration="${value}">+${value}<small>${t('minuteShort')}</small></button>`).join('')}</div><p class="preset-hint" id="preset-hint">${t('presetHint')}</p>
     <p id="entry-error" class="form-message" role="alert" hidden></p><button class="primary-button" type="submit">${icon('check')}${t('saveHours')}</button>${state.entries[key] ? `<button class="delete-button" id="delete-entry" type="button">${t('deleteDay')}</button>` : ''}</form>`;
   dialog.querySelector('#close-editor').addEventListener('click', () => { if (!editorBusy) dialog.close(); });
   const minutesInput = dialog.querySelector('#minutes');
-  const syncSelection = () => {
-    dialog.querySelectorAll('[data-duration]').forEach(input => { input.checked = selection.selected.includes(Number(input.dataset.duration)); });
-    dialog.querySelector('#duration-preview').textContent = Number.isInteger(selection.minutes) && selection.minutes >= 0 && selection.minutes <= 1440 ? formatDuration(selection.minutes) : '—';
+  const syncPreview = () => {
+    const minutes = minutesInput.value === '' ? 0 : minutesInput.valueAsNumber;
+    dialog.querySelector('#duration-preview').textContent = Number.isInteger(minutes) && minutes >= 0 && minutes <= 1440 ? formatDuration(minutes) : '—';
   };
   minutesInput.addEventListener('input', () => {
-    selection = { minutes: minutesInput.value === '' ? 0 : Number(minutesInput.value), selected: [] };
     dialog.querySelector('#entry-error').hidden = true;
-    syncSelection();
+    syncPreview();
   });
-  dialog.querySelectorAll('[data-duration]').forEach(input => input.addEventListener('change', () => {
+  dialog.querySelectorAll('[data-duration]').forEach(button => button.addEventListener('click', () => {
     const errorEl = dialog.querySelector('#entry-error');
     try {
-      selection = toggleMinuteSelection(selection, Number(input.dataset.duration));
-      minutesInput.value = selection.minutes;
+      const currentMinutes = minutesInput.validity.badInput ? NaN : minutesInput.value === '' ? 0 : minutesInput.valueAsNumber;
+      minutesInput.value = addMinutePreset(currentMinutes, Number(button.dataset.duration));
       errorEl.hidden = true;
     } catch {
       errorEl.textContent = t('durationInvalid'); errorEl.hidden = false;
     }
-    syncSelection();
+    syncPreview();
   }));
   dialog.querySelector('#entry-form').addEventListener('submit', event => { event.preventDefault(); commitEntry(key); });
   dialog.querySelector('#delete-entry')?.addEventListener('click', async event => {
@@ -330,7 +328,7 @@ window.addEventListener('storage', event => {
 });
 function reconcileToday() {
   const today = localDateKey();
-  if (today !== lastToday) { if (state.end === lastToday) state.end = today; lastToday = today; if (state.tab !== 'profile') render(); }
+  if (today !== lastToday) { if (state.end === shiftDate(lastToday, 1)) state.end = shiftDate(today, 1); lastToday = today; if (state.tab !== 'profile') render(); }
 }
 function scheduleMidnight() {
   const next = new Date(); next.setHours(24, 0, 0, 50);

@@ -1013,16 +1013,6 @@ dialog::backdrop {
   margin-top:19px;
 }
 .minute-preset {
-  position:relative;
-  cursor:pointer;
-}
-.minute-preset>input {
-  position:absolute;
-  width:1px;
-  height:1px;
-  opacity:0;
-}
-.minute-preset>span {
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -1032,50 +1022,28 @@ dialog::backdrop {
   border-radius:12px;
   background:#fafbfc;
   color:#747c87;
-  padding:17px 2px 6px;
+  padding:10px 2px;
   font-size:21px;
   font-weight:750;
+  cursor:pointer;
+  transition:background .15s, border-color .15s, transform .15s;
 }
 .minute-preset small {
   font-size:10px;
   font-weight:500;
   margin-top:1px;
 }
-.preset-marker {
-  position:absolute;
-  top:7px;
-  left:7px;
-  display:grid;
-  place-items:center;
-  height:12px;
-  width:12px;
-  border:1px solid #d6dce3;
-  border-radius:3px;
-}
-.preset-marker .icon {
-  height:10px;
-  width:10px;
-  opacity:0;
-  stroke-width:2.5;
-}
-.minute-preset>input:checked+span {
+.minute-preset:active:not(:disabled) {
   background:#fff0e3;
   border-color:#e79f68;
   color:#a65b25;
+  transform:scale(.96);
 }
-.minute-preset>input:checked+span .preset-marker {
-  background:#f58236;
-  border-color:#f58236;
-  color:white;
-}
-.minute-preset>input:checked+span .icon {
-  opacity:1;
-}
-.minute-preset>input:focus-visible+span {
+.minute-preset:focus-visible {
   outline:3px solid #f5823680;
   outline-offset:3px;
 }
-.minute-preset>input:disabled+span {
+.minute-preset:disabled {
   opacity:.5;
   cursor:default;
 }
