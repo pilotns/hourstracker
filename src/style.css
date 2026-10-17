@@ -387,6 +387,13 @@ h2 {
 .has-hours.is-today .bar-fill {
   background:var(--orange)
 }
+.day-column.is-future .bar-fill {
+  background:#a4bddd
+}
+.day-column.is-future .column-date,
+.day-column.is-future .column-hours {
+  color:#6e87aa
+}
 .column-hours {
   font-size:9px;
   font-weight:650;
@@ -472,10 +479,10 @@ h2 {
   font-weight:700;
   margin-top:2px
 }
-.worked .day-tile {
+.has-hours .day-tile {
   background:#fff3e9
 }
-.worked .day-tile strong {
+.has-hours .day-tile strong {
   color:#aa612d
 }
 .day-description {
@@ -1210,64 +1217,6 @@ dialog::backdrop {
   outline:3px solid #f5823680;
   outline-offset:3px
 }
-.summary-breakdown {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-  border-top:1px solid #eedbcb;
-  padding:14px 0 16px
-}
-.history-summary + .summary-breakdown {
-  border-top:0
-}
-.summary-breakdown-item {
-  display:flex;
-  flex-direction:column;
-  gap:5px;
-  font-size:10px;
-  color:#9a7c64
-}
-.summary-breakdown-item strong {
-  font-size:14px;
-  color:#895633;
-  font-weight:750
-}
-.summary-breakdown-item.reserved {
-  border-left:1px solid #eedbcb;
-  padding-left:17px;
-  color:#7a8496
-}
-.summary-breakdown-item.reserved strong {
-  color:#657c9e
-}
-.day-column.reserved .bar-fill {
-  background:#a4bddd
-}
-.day-column.reserved.is-today .bar-fill {
-  background:#769aca
-}
-.day-column.reserved .column-hours {
-  color:#6e87aa
-}
-.day-row.reserved .day-tile {
-  background:#eef3fa
-}
-.day-row.reserved .day-tile strong {
-  color:#6e85a5
-}
-.entry-status {
-  display:block;
-  margin-top:3px;
-  font-size:8px;
-  font-weight:650;
-  letter-spacing:.15px
-}
-.entry-status.reserved {
-  color:#6e88aa
-}
-.entry-status.completed {
-  color:#b08868
-}
 .status-line {
   font-size:10px
 }
@@ -1307,9 +1256,6 @@ dialog::backdrop {
     max-width:81px;
     min-height:35px;
     padding:6px 4px
-  }
-  .summary-breakdown-item strong {
-    font-size:12px
   }
   .day-description small {
     max-width:108px

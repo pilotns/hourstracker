@@ -33,7 +33,6 @@ const icons = {
 function icon(name, cls = '') { return `<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name]}</svg>`; }
 function escape(value = '') { return String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 const prettyDate = (key, options) => new Intl.DateTimeFormat(intlLocale(), options).format(parseDate(key));
-const entryStatus = entry => entry?.status === 'reserved' ? 'reserved' : 'completed';
 function applyLanguage(value, persist = false) {
   const locale = setLocale(value);
   setDateLocale(locale); setStorageLocale(locale);
@@ -67,11 +66,6 @@ function availabilityGauge(minutes, usedMinutes, ready) {
     </div>
   </div>`;
 }
-function breakdown(dates) {
-  const reserved = dates.reduce((sum, key) => sum + (entryStatus(state.entries[key]) === 'reserved' ? state.entries[key].minutes : 0), 0);
-  const worked = sumMinutes(state.entries, dates) - reserved;
-  return `<div class="summary-breakdown"><div class="summary-breakdown-item worked"><span>${t('worked')}</span><strong>${formatDuration(worked)}</strong></div><div class="summary-breakdown-item reserved"><span>${t('reserved')}</span><strong>${formatDuration(reserved)}</strong></div></div>`;
-}
 function header() {
   return `<header class="topbar"><a class="brand" href="#" aria-label="${t('brandLabel')}"><img src="${import.meta.env.BASE_URL}favicon.svg" alt="" width="36" height="36"/><span>hours<span class="brand-light">tracker</span><small>${t('brandTagline')}</small></span></a><div class="header-actions"><label class="language-picker"><span class="sr-only">${t('language')}</span><select class="language-select" id="language" aria-label="${t('language')}"><option value="en" lang="en" ${getLocale() === 'en' ? 'selected' : ''}>EN</option><option value="uk" lang="uk" ${getLocale() === 'uk' ? 'selected' : ''}>Українська</option></select></label><button class="avatar" data-tab="profile" aria-label="${t('profileOpen')}">${state.user ? escape(state.user.email?.[0]?.toUpperCase() || 'U') : icon('user')}</button></div></header>`;
 }
@@ -84,11 +78,11 @@ function status() {
   return `<div class="status-line"><span class="status-dot ${state.user ? 'cloud' : ''}"></span>${t(state.user ? 'savedAccount' : 'savedDevice')}</div>`;
 }
 function dayRow(key) {
-  const entry = state.entries[key], hasHours = entry?.minutes > 0, today = key === localDateKey(), reserved = entryStatus(entry) === 'reserved';
-  const label = `${prettyDate(key, { dateStyle: 'full' })}, ${entry ? formatDuration(entry.minutes) : t('noHours')}${entry ? `, ${t(entryStatus(entry))}` : ''}. ${t('edit')}`;
-  return `<button class="day-row ${hasHours ? 'worked' : ''} ${reserved ? 'reserved' : ''}" data-edit="${key}" aria-label="${escape(label)}" ${state.loading || state.error ? 'disabled' : ''}>
+  const entry = state.entries[key], hasHours = entry?.minutes > 0, today = key === localDateKey();
+  const label = `${prettyDate(key, { dateStyle: 'full' })}, ${entry ? formatDuration(entry.minutes) : t('noHours')}. ${t('edit')}`;
+  return `<button class="day-row ${hasHours ? 'has-hours' : ''}" data-edit="${key}" aria-label="${escape(label)}" ${state.loading || state.error ? 'disabled' : ''}>
     <span class="day-tile"><span>${prettyDate(key, { weekday: 'short' })}</span><strong>${parseDate(key).getDate()}</strong></span>
-    <span class="day-description"><span class="day-name">${today ? t('today') : prettyDate(key, { weekday: 'long' })}${today ? '<span class="today-dot"></span>' : ''}</span><small>${entry?.note ? escape(entry.note) : hasHours ? prettyDate(key, { day: 'numeric', month: 'long' }) : t('noEntries')}</small>${entry ? `<span class="entry-status ${entryStatus(entry)}">${t(entryStatus(entry))}</span>` : ''}</span>
+    <span class="day-description"><span class="day-name">${today ? t('today') : prettyDate(key, { weekday: 'long' })}${today ? '<span class="today-dot"></span>' : ''}</span><small>${entry?.note ? escape(entry.note) : hasHours ? prettyDate(key, { day: 'numeric', month: 'long' }) : t('noEntries')}</small></span>
     <span class="day-duration ${hasHours ? '' : 'muted'}">${entry ? formatDuration(entry.minutes) : '—'}</span>${icon('edit', 'row-edit')}
   </button>`;
 }
@@ -102,9 +96,9 @@ function overview() {
     </section>
     <section class="window-section" aria-labelledby="window-title"><div class="section-heading"><div><h2 id="window-title">${t('yourSevenDays')}</h2><p>${t('rollingPeriod')} · ${prettyDate(state.end, { year: 'numeric' })}</p></div></div>
       <div class="days-strip" id="days-strip" aria-label="${t('stripLabel')}">${dates.map(key => {
-        const entry = state.entries[key], mins = entry?.minutes || 0, reserved = entryStatus(entry) === 'reserved';
-        const label = `${prettyDate(key, { dateStyle: 'full' })}, ${formatDuration(mins)}${entry ? `, ${t(entryStatus(entry))}` : ''}. ${t('edit')}`;
-        return `<button class="day-column ${key === today ? 'is-today' : ''} ${mins ? 'has-hours' : ''} ${reserved ? 'reserved' : ''}" data-edit="${key}" aria-label="${escape(label)}" ${state.loading || state.error ? 'disabled' : ''}><span class="column-weekday">${prettyDate(key, { weekday: 'short' })}</span><span class="column-date">${parseDate(key).getDate()}</span><span class="bar-track"><span class="bar-fill" style="height:${mins ? Math.max(8, mins / max * 100) : 5}%"></span></span><span class="column-hours">${mins ? `${Number((mins / 60).toFixed(2)).toLocaleString(intlLocale())} ${t('hourShort')}` : '—'}</span></button>`;
+        const entry = state.entries[key], mins = entry?.minutes || 0;
+        const label = `${prettyDate(key, { dateStyle: 'full' })}, ${formatDuration(mins)}. ${t('edit')}`;
+        return `<button class="day-column ${key === today ? 'is-today' : key > today ? 'is-future' : ''} ${mins ? 'has-hours' : ''}" data-edit="${key}" aria-label="${escape(label)}" ${state.loading || state.error ? 'disabled' : ''}><span class="column-weekday">${prettyDate(key, { weekday: 'short' })}</span><span class="column-date">${parseDate(key).getDate()}</span><span class="bar-track"><span class="bar-fill" style="height:${mins ? Math.max(8, mins / max * 100) : 5}%"></span></span><span class="column-hours">${mins ? `${Number((mins / 60).toFixed(2)).toLocaleString(intlLocale())} ${t('hourShort')}` : '—'}</span></button>`;
       }).join('')}</div>
       <div class="jump-date"><button class="icon-button" data-shift="-1" aria-label="${t('previousDay')}" ${state.end <= MIN_END ? 'disabled' : ''}>${icon('arrow', 'rotate')}</button><label class="period-date"><span>${t('periodEnding')}</span><input aria-label="${t('endDateLabel')}" id="end-date" type="date" value="${state.end}" max="${MAX_END}" min="${MIN_END}" /></label><button class="icon-button" data-shift="1" aria-label="${t('nextDay')}" ${state.end >= MAX_END ? 'disabled' : ''}>${icon('arrow')}</button></div>
     </section>
@@ -115,7 +109,7 @@ function history() {
   const allKeys = Object.keys(state.entries).sort().reverse(), keys = allKeys.filter(key => !state.month || key.startsWith(state.month));
   return `<div class="page-heading"><div><p class="eyebrow">${t('historyEyebrow')}</p><h1>${t('history')}<span>.</span></h1></div><button id="export" class="icon-button" aria-label="${t('downloadCsv')}" ${!allKeys.length ? 'disabled' : ''}>${icon('download')}</button></div>
     <div class="history-toolbar"><label>${t('month')}<input id="history-month" type="month" value="${state.month}" aria-label="${t('historyMonth')}" /></label><button id="all-history" class="text-button">${t('allTime')}</button></div>
-    <div class="history-summary"><span>${t(state.month ? 'selectedMonth' : 'totalAllTime')}<strong>${formatDuration(sumMinutes(state.entries, keys))}</strong></span><span class="history-count">${keys.length}<small>${t('entries')}</small></span></div>${breakdown(keys)}
+    <div class="history-summary"><span>${t(state.month ? 'selectedMonth' : 'totalAllTime')}<strong>${formatDuration(sumMinutes(state.entries, keys))}</strong></span><span class="history-count">${keys.length}<small>${t('entries')}</small></span></div>
     ${keys.length ? `<div class="history-list">${keys.map((key, i) => `${!i || key.slice(0, 7) !== keys[i - 1].slice(0, 7) ? `<h2 class="month-heading">${prettyDate(key, { month: 'long', year: 'numeric' })}</h2>` : ''}${dayRow(key)}`).join('')}</div>` : `<div class="empty-state">${icon('history')}<h2>${t(state.month ? 'emptyMonth' : 'emptyHistory')}</h2><p>${t('historyHint')}<br/>${t('historyHintSecond')}</p><button class="primary-button" data-tab="overview">${t('goToHours')}</button></div>`}${status()}`;
 }
 function profile() {
@@ -212,8 +206,7 @@ function bindEvents() {
 function openEditor(key) {
   if (state.loading || state.error) { toast(t('waitForHistory')); return; }
   editorGeneration++;
-  const future = key > localDateKey();
-  const entry = state.entries[key] || { minutes: 0, note: '', status: future ? 'reserved' : 'completed' };
+  const entry = state.entries[key] || { minutes: 0, note: '' };
   const initialMinutes = Math.min(entry.minutes, DAILY_LIMIT_MINUTES);
   editorBusy = false;
   dialog.innerHTML = `<div class="sheet-handle"></div><div class="editor-header"><div><p class="eyebrow">${t('workday')}</p><h2 id="editor-title">${prettyDate(key, { day: 'numeric', month: 'long' })}</h2><p>${prettyDate(key, { weekday: 'long', year: 'numeric' })}</p></div><button class="icon-button" id="close-editor" aria-label="${t('close')}">${icon('close')}</button></div>
@@ -257,7 +250,7 @@ async function commitEntry(key, remove = false) {
   const form = dialog.querySelector('#entry-form'), errorEl = dialog.querySelector('#entry-error');
   errorEl.hidden = true;
   const minutes = Math.min(DAILY_LIMIT_MINUTES, Number(form.elements.minutes.value));
-  const entry = { minutes, note: state.entries[key]?.note ?? '', status: key > localDateKey() ? 'reserved' : 'completed' };
+  const entry = { minutes, note: state.entries[key]?.note ?? '' };
   if (!remove && (!form.elements.minutes.value.trim() || !Number.isInteger(minutes) || minutes > DAILY_LIMIT_MINUTES || minutes < 0)) {
     errorEl.textContent = t('durationInvalid'); errorEl.hidden = false; return;
   }
@@ -298,7 +291,7 @@ async function submitAuth(event) {
 }
 function exportHistory() {
   const safeCell = value => `"${String(value).replace(/^[=+@\-\t\r]/, c => `'${c}`).replaceAll('"', '""')}"`;
-  const rows = [[t('csvDate'), t('csvHours'), t('csvMinutes'), t('csvTotalMinutes'), t('csvStatus'), t('csvNote')], ...Object.keys(state.entries).sort().map(key => { const entry = state.entries[key]; return [key, Math.floor(entry.minutes / 60), entry.minutes % 60, entry.minutes, t(entryStatus(entry)), entry.note]; })];
+  const rows = [[t('csvDate'), t('csvHours'), t('csvMinutes'), t('csvTotalMinutes'), t('csvNote')], ...Object.keys(state.entries).sort().map(key => { const entry = state.entries[key]; return [key, Math.floor(entry.minutes / 60), entry.minutes % 60, entry.minutes, entry.note]; })];
   const blob = new Blob(['\uFEFF', rows.map(row => row.map(safeCell).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = `flex-hours-${localDateKey()}.csv`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
